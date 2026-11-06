@@ -1,3 +1,4 @@
+
 # DisputeShield AI — 3-Minute Demo Video Script (Shark Tank Format)
 
 > **Target Duration:** 2 minutes 45 seconds – 2 minutes 55 seconds  
@@ -91,3 +92,4 @@ The live WebSocket feeds step-by-step agent telemetry in real time:
 - [ ] Clean desktop: Close Slack, Discord, email, WhatsApp, and browser bookmarks bar.
 - [ ] Seed fresh data: Run `python scripts/seed_demo_disputes.py` before Take 1.
 - [ ] Audio: Test mic gain; ensure zero background noise or fan hum.
+

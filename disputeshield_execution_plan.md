@@ -593,6 +593,7 @@ recharts, axios
 
 ---
 
+
 ## 🚀 Phase 4: Deploy, Demo, Submit (Days 22–26)
 
 ### Day 22 (Nov 8) — Render Deployment
@@ -677,6 +678,7 @@ recharts, axios
    - **Accomplishments:** Response time reduction, evidence automation, multi-API integration
    - **What we learned:** MCP protocol, dispute lifecycle, agentic AI patterns
    - **What's next:** Production deployment, merchant onboarding, PayPal Marketplace app
+
    - **Built With tags:** All technologies listed
 2. Attach:
    - YouTube video link
@@ -731,5 +733,6 @@ recharts, axios
 > 1. ❌ APIMatic SDK generation (mention it, don't build it)
 > 2. ❌ Mobile responsive design
 > 3. ❌ Risk prediction dashboard (drop to a static placeholder)
+
 > 4. ❌ RAG similar-case retrieval (agent works without it)
 > 5. ⚠️ **NEVER drop:** Webhook → Agent → Evidence pipeline, AG Grid dashboard, Demo video
