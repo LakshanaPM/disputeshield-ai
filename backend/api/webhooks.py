@@ -25,7 +25,11 @@ router = APIRouter(tags=["webhooks"])
 
 
 @router.post("/paypal")
-async def receive_paypal_webhook(request: Request, db: Session = Depends(get_db)):
+async def receive_paypal_webhook(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
     """
     Receive and process PayPal webhook events.
 
@@ -97,7 +101,8 @@ async def receive_paypal_webhook(request: Request, db: Session = Depends(get_db)
             process_dispute_webhook.delay(webhook_event.id)
             logger.info(f"Dispatched Celery task process_dispute_webhook for event db_id={webhook_event.id}")
         except Exception as exc:
-            logger.warning(f"Could not enqueue Celery task (broker may be unavailable): {exc}")
+            logger.info(f"Celery broker unavailable, executing via in-process background task: {exc}")
+            background_tasks.add_task(process_dispute_webhook, webhook_event.id)
 
         return {"status": "received", "event_id": event_id}
 
