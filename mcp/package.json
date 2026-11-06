@@ -1,0 +1,13 @@
+{
+  "name": "disputeshield-mcp",
+  "version": "1.0.0",
+  "description": "PayPal MCP Server Integration for DisputeShield AI",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "bash start.sh"
+  },
+  "dependencies": {
+    "@paypal/mcp": "0.1.0"
+  }
+}

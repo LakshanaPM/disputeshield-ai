@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "disputeshield-sdk"
+version = "1.0.0"
+description = "Official Python SDK for DisputeShield AI PayPal Dispute Defense"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "httpx>=0.24.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-org/disputeshield-ai"
+

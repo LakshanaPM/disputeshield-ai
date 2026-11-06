@@ -1,0 +1,16 @@
+{
+  "include": [
+    "backend",
+    "sdk",
+    "scripts",
+    "mcp"
+  ],
+  "extraPaths": [
+    "backend",
+    "sdk/python"
+  ],
+  "venvPath": "C:\\Users\\pmlak",
+  "venv": "venv",
+  "pythonVersion": "3.11",
+  "reportMissingImports": "none"
+}

@@ -1,0 +1,1291 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "DisputeShield AI API",
+    "description": "DisputeShield AI: Autonomous dispute defense agent for PayPal merchants. Provides REST endpoints for dispute triage, evidence generation, risk analytics, and webhook ingestion. Standardized OpenAPI 3.0 specification formatted for APIMatic SDK generation.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/webhooks/paypal": {
+      "post": {
+        "tags": [
+          "webhooks"
+        ],
+        "summary": "Receive Paypal Webhook",
+        "description": "Receive and process PayPal webhook events.\n\nFlow:\n1. Parse the raw payload\n2. Verify webhook signature via verify_paypal_webhook\n3. Check idempotency (return already_processed if exists)\n4. Store raw event in database\n5. Enqueue Celery task (process_dispute_webhook)\n6. Return 200 within 200ms",
+        "operationId": "receive_paypal_webhook_api_webhooks_paypal_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/webhooks/paypal/simulate": {
+      "post": {
+        "tags": [
+          "webhooks"
+        ],
+        "summary": "Simulate Paypal Webhook",
+        "description": "Simulate incoming PayPal webhook for live hackathon demos.\nRotates through realistic dispute scenarios to demonstrate both\nAUTO_SUBMITTED (hands-free) and DRAFT_PENDING_REVIEW (requires review).",
+        "operationId": "simulate_paypal_webhook_api_webhooks_paypal_simulate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulateWebhookRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/disputes": {
+      "get": {
+        "tags": [
+          "disputes"
+        ],
+        "summary": "List Disputes",
+        "description": "List disputes with pagination, sorting, and filtering.\nDesigned specifically for AG Grid Server-Side Row Model (SSRM).",
+        "operationId": "list_disputes_api_disputes_get",
+        "parameters": [
+          {
+            "name": "start_row",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Start row index for AG Grid SSRM",
+              "default": 0,
+              "title": "Start Row"
+            },
+            "description": "Start row index for AG Grid SSRM"
+          },
+          {
+            "name": "end_row",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "End row index for AG Grid SSRM",
+              "default": 50,
+              "title": "End Row"
+            },
+            "description": "End row index for AG Grid SSRM"
+          },
+          {
+            "name": "sort_col",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Column to sort by",
+              "title": "Sort Col"
+            },
+            "description": "Column to sort by"
+          },
+          {
+            "name": "sort_dir",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Sort direction: asc or desc",
+              "default": "asc",
+              "title": "Sort Dir"
+            },
+            "description": "Sort direction: asc or desc"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status",
+              "title": "Status"
+            },
+            "description": "Filter by status"
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by dispute reason",
+              "title": "Reason"
+            },
+            "description": "Filter by dispute reason"
+          },
+          {
+            "name": "outcome",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by outcome",
+              "title": "Outcome"
+            },
+            "description": "Filter by outcome"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Global search query",
+              "title": "Search"
+            },
+            "description": "Global search query"
+          },
+          {
+            "name": "filter_tab",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Dashboard tab filter (ALL, REVIEW_NEEDED, AUTO_SUBMITTED, RESOLVED)",
+              "default": "ALL",
+              "title": "Filter Tab"
+            },
+            "description": "Dashboard tab filter (ALL, REVIEW_NEEDED, AUTO_SUBMITTED, RESOLVED)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisputeListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/disputes/{dispute_id}": {
+      "get": {
+        "tags": [
+          "disputes"
+        ],
+        "summary": "Get Dispute",
+        "description": "Get full dispute details including linked merchant and evidence items.",
+        "operationId": "get_dispute_api_disputes__dispute_id__get",
+        "parameters": [
+          {
+            "name": "dispute_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Dispute Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisputeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/disputes/{dispute_id}/approve": {
+      "post": {
+        "tags": [
+          "disputes"
+        ],
+        "summary": "Approve Dispute Evidence",
+        "description": "Merchant approves or modifies the agent's evidence draft.\nSubmits the evidence to PayPal Sandbox and updates dispute status.",
+        "operationId": "approve_dispute_evidence_api_disputes__dispute_id__approve_post",
+        "parameters": [
+          {
+            "name": "dispute_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Dispute Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisputeApproveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisputeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/disputes/{dispute_id}/override": {
+      "post": {
+        "tags": [
+          "disputes"
+        ],
+        "summary": "Override Dispute Evidence",
+        "description": "Merchant supplies custom counter-evidence notes, overriding the agent's draft.\nSubmits the revised payload to PayPal and updates status to UNDER_REVIEW.",
+        "operationId": "override_dispute_evidence_api_disputes__dispute_id__override_post",
+        "parameters": [
+          {
+            "name": "dispute_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Dispute Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisputeOverrideRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisputeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/summary": {
+      "get": {
+        "tags": [
+          "analytics"
+        ],
+        "summary": "Get Analytics Summary",
+        "description": "Dashboard summary statistics:\n- total / total_disputes\n- review_needed (DRAFT_PENDING_REVIEW)\n- auto_submitted (AUTO_SUBMITTED)\n- resolved (RESOLVED, WON, LOST, CLOSED)\n- Win rate and financial metrics",
+        "operationId": "get_analytics_summary_api_analytics_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/risk-score": {
+      "get": {
+        "tags": [
+          "analytics"
+        ],
+        "summary": "Get Risk Score",
+        "description": "Current account health and risk metrics calculated via RiskPredictor.",
+        "operationId": "get_risk_score_api_analytics_risk_score_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiskAssessment"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/dispute-trends": {
+      "get": {
+        "tags": [
+          "analytics"
+        ],
+        "summary": "Get Dispute Trends",
+        "description": "Time-series dispute data formatted for Recharts dashboard widgets.\nReturns daily dispute counts, category breakdown, and historical monthly ratios.",
+        "operationId": "get_dispute_trends_api_analytics_dispute_trends_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/win-rate": {
+      "get": {
+        "tags": [
+          "analytics"
+        ],
+        "summary": "Get Win Rate Analytics",
+        "description": "Dispute win-rate statistics, dollar amount saved, and resolution breakdown.\nCalculated strictly from live database rows.",
+        "operationId": "get_win_rate_analytics_api_analytics_win_rate_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Health Check",
+        "description": "Health check endpoint for container probes and uptime monitoring.",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Root",
+        "description": "Root endpoint returning service identity and documentation link.",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DisputeApproveRequest": {
+        "properties": {
+          "approved": {
+            "type": "boolean",
+            "title": "Approved",
+            "default": true
+          },
+          "modifications": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modifications"
+          }
+        },
+        "type": "object",
+        "title": "DisputeApproveRequest",
+        "description": "Merchant approves agent's evidence draft."
+      },
+      "DisputeListItem": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "paypal_dispute_id": {
+            "type": "string",
+            "title": "Paypal Dispute Id"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "dispute_amount": {
+            "type": "number",
+            "title": "Dispute Amount"
+          },
+          "dispute_currency": {
+            "type": "string",
+            "title": "Dispute Currency"
+          },
+          "agent_decision": {
+            "type": "string",
+            "title": "Agent Decision"
+          },
+          "confidence_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Score"
+          },
+          "evidence_submitted": {
+            "type": "boolean",
+            "title": "Evidence Submitted"
+          },
+          "outcome": {
+            "type": "string",
+            "title": "Outcome"
+          },
+          "response_deadline": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response Deadline"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "paypal_dispute_id",
+          "reason",
+          "status",
+          "dispute_amount",
+          "dispute_currency",
+          "agent_decision",
+          "evidence_submitted",
+          "outcome",
+          "created_at"
+        ],
+        "title": "DisputeListItem",
+        "description": "Compact dispute for grid/list views."
+      },
+      "DisputeListResponse": {
+        "properties": {
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/DisputeListItem"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "total_count": {
+            "type": "integer",
+            "title": "Total Count"
+          },
+          "start_row": {
+            "type": "integer",
+            "title": "Start Row"
+          },
+          "end_row": {
+            "type": "integer",
+            "title": "End Row"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rows",
+          "total_count",
+          "start_row",
+          "end_row"
+        ],
+        "title": "DisputeListResponse",
+        "description": "AG Grid Server-Side Row Model (SSRM) response structure."
+      },
+      "DisputeOverrideRequest": {
+        "properties": {
+          "evidence_notes": {
+            "type": "string",
+            "title": "Evidence Notes"
+          },
+          "additional_context": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Additional Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "evidence_notes"
+        ],
+        "title": "DisputeOverrideRequest",
+        "description": "Merchant overrides agent's evidence with custom content."
+      },
+      "DisputeResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "paypal_dispute_id": {
+            "type": "string",
+            "title": "Paypal Dispute Id"
+          },
+          "paypal_order_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paypal Order Id"
+          },
+          "paypal_transaction_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paypal Transaction Id"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "dispute_amount": {
+            "type": "number",
+            "title": "Dispute Amount"
+          },
+          "dispute_currency": {
+            "type": "string",
+            "title": "Dispute Currency"
+          },
+          "dispute_life_cycle_stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dispute Life Cycle Stage"
+          },
+          "buyer_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buyer Email"
+          },
+          "seller_merchant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seller Merchant Id"
+          },
+          "merchant_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Id"
+          },
+          "buyer_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buyer Message"
+          },
+          "seller_response": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seller Response"
+          },
+          "agent_decision": {
+            "type": "string",
+            "title": "Agent Decision"
+          },
+          "confidence_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Score"
+          },
+          "agent_reasoning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Reasoning"
+          },
+          "evidence_submitted": {
+            "type": "boolean",
+            "title": "Evidence Submitted"
+          },
+          "evidence_strength_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Strength Score"
+          },
+          "outcome": {
+            "type": "string",
+            "title": "Outcome"
+          },
+          "response_deadline": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response Deadline"
+          },
+          "agent_processed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Processed At"
+          },
+          "evidence_submitted_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Submitted At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "evidence_items": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceItemResponse"
+            },
+            "type": "array",
+            "title": "Evidence Items",
+            "default": []
+          },
+          "merchant": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MerchantInfoResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "paypal_dispute_id",
+          "reason",
+          "status",
+          "dispute_amount",
+          "dispute_currency",
+          "agent_decision",
+          "evidence_submitted",
+          "outcome",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "DisputeResponse",
+        "description": "Full dispute response for detail views."
+      },
+      "EvidenceItemResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "evidence_type": {
+            "type": "string",
+            "title": "Evidence Type"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "relevance_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relevance Score"
+          },
+          "strength_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strength Score"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "compiled_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Compiled At"
+          },
+          "submitted_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitted At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "evidence_type",
+          "status"
+        ],
+        "title": "EvidenceItemResponse",
+        "description": "Single evidence item in a dispute response."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "MerchantInfoResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "paypal_merchant_id": {
+            "type": "string",
+            "title": "Paypal Merchant Id"
+          },
+          "business_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Name"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "dispute_ratio": {
+            "type": "number",
+            "title": "Dispute Ratio",
+            "default": 0.0
+          },
+          "account_health_score": {
+            "type": "number",
+            "title": "Account Health Score",
+            "default": 100.0
+          },
+          "risk_level": {
+            "type": "string",
+            "title": "Risk Level",
+            "default": "GREEN"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "paypal_merchant_id"
+        ],
+        "title": "MerchantInfoResponse",
+        "description": "Merchant profile details embedded in dispute responses."
+      },
+      "RiskAssessment": {
+        "properties": {
+          "account_health_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Account Health Score",
+            "description": "Overall health score (0.0 to 100.0)"
+          },
+          "current_dispute_ratio": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Current Dispute Ratio",
+            "description": "Rolling 90-day dispute ratio percentage"
+          },
+          "risk_band": {
+            "type": "string",
+            "enum": [
+              "GREEN",
+              "YELLOW",
+              "ORANGE",
+              "RED"
+            ],
+            "title": "Risk Band",
+            "description": "PayPal risk band: GREEN, YELLOW, ORANGE, RED"
+          },
+          "trend_direction": {
+            "type": "string",
+            "enum": [
+              "INCREASING",
+              "STABLE",
+              "DECREASING"
+            ],
+            "title": "Trend Direction",
+            "description": "Velocity trend: INCREASING, STABLE, DECREASING"
+          },
+          "disputes_90d": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Disputes 90D",
+            "description": "Dispute count in last 90 days"
+          },
+          "transactions_90d": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Transactions 90D",
+            "description": "Transaction volume in last 90 days"
+          },
+          "actionable_recommendations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Actionable Recommendations",
+            "description": "Targeted actions to prevent limitation"
+          },
+          "threshold_warning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold Warning",
+            "description": "PayPal limitation warning banner if ratio is elevated"
+          }
+        },
+        "type": "object",
+        "required": [
+          "account_health_score",
+          "current_dispute_ratio",
+          "risk_band",
+          "trend_direction",
+          "disputes_90d",
+          "transactions_90d"
+        ],
+        "title": "RiskAssessment",
+        "description": "Comprehensive account health and dispute risk assessment."
+      },
+      "SimulateWebhookRequest": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "dispute_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dispute Id"
+          },
+          "scenario_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Index"
+          }
+        },
+        "type": "object",
+        "title": "SimulateWebhookRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Local development server"
+    },
+    {
+      "url": "https://disputeshield.onrender.com",
+      "description": "Production Render deployment"
+    }
+  ],
+  "x-codegen-settings": {
+    "generateInterfaces": true,
+    "languageSettings": {
+      "typescript": {
+        "packageName": "@disputeshield/sdk",
+        "clientName": "DisputeShieldClient",
+        "modelPackage": "models",
+        "apiPackage": "api"
+      },
+      "python": {
+        "packageName": "disputeshield_sdk",
+        "clientName": "DisputeShieldClient"
+      }
+    }
+  }
+}

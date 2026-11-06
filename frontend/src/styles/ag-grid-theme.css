@@ -1,0 +1,78 @@
+/* DisputeShield AI — AG Grid Premium Light FinTech Theme */
+
+.ag-theme-quartz {
+  --ag-background-color: #ffffff;
+  --ag-header-background-color: #f8fafc;
+  --ag-odd-row-background-color: #ffffff;
+  --ag-row-hover-color: #f1f5f9;
+  --ag-selected-row-background-color: rgba(0, 121, 193, 0.08);
+  --ag-border-color: #e2e8f0;
+  --ag-header-column-separator-color: #e2e8f0;
+  --ag-font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --ag-font-size: 13px;
+  --ag-header-font-size: 11px;
+  --ag-header-font-weight: 700;
+  --ag-header-foreground-color: #334155;
+  --ag-foreground-color: #0f172a;
+  --ag-secondary-foreground-color: #475569;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.ag-theme-quartz .ag-header-cell-label {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #334155;
+  font-weight: 700;
+}
+
+.ag-theme-quartz .ag-row {
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  border-bottom: 1px solid #f1f5f9;
+  color: #0f172a;
+}
+
+.ag-theme-quartz .ag-row-hover {
+  background-color: #f8fafc !important;
+  border-left: 3px solid #0079c1 !important;
+}
+
+/* Master-Detail Expand/Collapse Chevron */
+.ag-theme-quartz .ag-group-expanded .ag-icon-tree-open,
+.ag-theme-quartz .ag-group-contracted .ag-icon-tree-closed {
+  color: #0079c1;
+  transition: transform 0.2s ease;
+}
+
+.ag-theme-quartz .ag-group-expanded .ag-icon-tree-open:hover,
+.ag-theme-quartz .ag-group-contracted .ag-icon-tree-closed:hover {
+  color: #00457c;
+  transform: scale(1.15);
+}
+
+/* Detail Cell Wrapper */
+.ag-theme-quartz .ag-details-row {
+  background: #f8fafc !important;
+  border-top: 2px solid #0079c1 !important;
+  border-bottom: 2px solid #cbd5e1 !important;
+  padding: 0 !important;
+}
+
+/* Pagination Bar */
+.ag-theme-quartz .ag-paging-panel {
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 16px;
+}
+
+.ag-theme-quartz .ag-paging-button {
+  color: #334155;
+}
+
+.ag-theme-quartz .ag-paging-button:hover {
+  color: #0079c1;
+}

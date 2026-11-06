@@ -1,0 +1,21 @@
+{
+  "name": "@disputeshield/sdk",
+  "version": "1.0.0",
+  "description": "Official TypeScript SDK for DisputeShield AI PayPal Dispute Defense",
+  "main": "dist/DisputeShieldClient.js",
+  "types": "dist/DisputeShieldClient.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "paypal",
+    "disputes",
+    "chargebacks",
+    "ai-agent",
+    "apimatic",
+    "mcp"
+  ],
+  "author": "DisputeShield AI Team",
+  "license": "MIT"
+}
+
