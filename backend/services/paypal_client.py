@@ -20,7 +20,10 @@ backend_dir = Path(__file__).resolve().parent.parent
 if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
-from config import settings
+try:
+    from config import settings
+except ImportError:
+    from backend.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -239,10 +242,16 @@ class PayPalClient:
                 error_data=data,
             )
         elif response.status_code == 422:
-            details = data.get("details", [])
-            detail_msg = "; ".join(d.get("description", "") for d in details if "description" in d)
+            details = data.get("details", []) if isinstance(data, dict) else []
+            descriptions: List[str] = []
+            if isinstance(details, list):
+                for item in details:
+                    if isinstance(item, dict) and "description" in item:
+                        descriptions.append(str(item["description"]))
+            detail_msg = "; ".join(descriptions)
+            msg = data.get("message", "") if isinstance(data, dict) else str(data)
             raise PayPalValidationError(
-                f"PayPal Validation Error (422): {data.get('message', '')} {detail_msg}".strip(),
+                f"PayPal Validation Error (422): {msg} {detail_msg}".strip(),
                 status_code=422,
                 error_data=data,
             )
