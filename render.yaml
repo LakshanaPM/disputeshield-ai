@@ -67,6 +67,6 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_BASE_URL
-        value: https://disputeshield-api.onrender.com
+        value: https://disputeshield-api-1p7w.onrender.com
       - key: VITE_WS_URL
-        value: wss://disputeshield-api.onrender.com/ws
+        value: wss://disputeshield-api-1p7w.onrender.com/ws
