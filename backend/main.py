@@ -47,6 +47,25 @@ async def lifespan(app: FastAPI):
     try:
         init_db()
         logger.info("Database tables verified / initialized successfully.")
+        
+        # Auto-seed demo disputes if the database is empty
+        try:
+            from database import SessionLocal
+            from models.dispute import Dispute
+            with SessionLocal() as db:
+                if db.query(Dispute).count() == 0:
+                    logger.info("Empty database detected; auto-seeding demo disputes...")
+                    import importlib.util
+                    seed_script_path = backend_dir.parent / "scripts" / "seed_demo_disputes.py"
+                    if seed_script_path.exists():
+                        spec = importlib.util.spec_from_file_location("seed_demo_disputes", seed_script_path)
+                        if spec and spec.loader:
+                            seed_mod = importlib.util.module_from_spec(spec)
+                            spec.loader.exec_module(seed_mod)
+                            seed_mod.seed_database()
+                            logger.info("Production database auto-seeded successfully!")
+        except Exception as seed_err:
+            logger.warning(f"Auto-seed check: {seed_err}")
     except Exception as exc:
         logger.warning(
             f"Database initialization deferred (database may still be starting): {exc}"
