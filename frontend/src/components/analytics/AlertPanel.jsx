@@ -7,29 +7,52 @@ import {
   ArrowRight,
   Sparkles,
   Zap,
+  Activity,
+  Layers,
 } from 'lucide-react';
 import { useToast } from '../common/Toast';
 
 export default function AlertPanel({ className = '' }) {
   const toastContext = useToast();
-  const [toggles, setToggles] = useState({
-    autoTrace: false,
-    policyRule: false,
-    ragApplied: true,
+
+  const [guardrails, setGuardrails] = useState(() => {
+    try {
+      const saved = localStorage.getItem('disputeshield_guardrails');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      // fallback
+    }
+    return {
+      midwestTrace: false,
+      signatureGap: false,
+      returnPolicy: false,
+    };
   });
 
   const handleToggle = (key, label) => {
-    const nextState = !toggles[key];
-    setToggles((prev) => ({ ...prev, [key]: nextState }));
-    if (nextState) {
+    const nextVal = !guardrails[key];
+    const updated = { ...guardrails, [key]: nextVal };
+    setGuardrails(updated);
+    try {
+      localStorage.setItem('disputeshield_guardrails', JSON.stringify(updated));
+    } catch (e) {
+      // ignore
+    }
+
+    if (nextVal) {
       toastContext?.toast?.success(
-        'Policy Rule Applied',
-        `${label} successfully enabled and synced with PayPal Rule Engine.`
+        'Guardrail Policy Activated',
+        `Guardrail policy activated: ${label} enabled and actively syncing with PayPal rules.`
       );
     } else {
-      toastContext?.toast?.info('Policy Rule Disabled', `${label} deactivated.`);
+      toastContext?.toast?.info(
+        'Guardrail Policy Deactivated',
+        `${label} returned to passive monitoring.`
+      );
     }
   };
+
+  const activeCount = Object.values(guardrails).filter(Boolean).length;
 
   return (
     <div className={`bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between ${className}`}>
@@ -49,25 +72,37 @@ export default function AlertPanel({ className = '' }) {
           </div>
         </div>
 
-        <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-full">
-          3 Active Telemetry Signals
+        <span className="text-[10px] font-mono font-bold text-slate-600 bg-slate-50 border border-slate-200 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
+          <Activity className="w-3 h-3 text-[#0079C1]" />
+          <span>{activeCount} of 3 Guardrails Enforcing</span>
         </span>
       </div>
 
       {/* 3 Active Telemetry Cards */}
       <div className="space-y-3 pt-4">
         {/* Signal 1: Carrier Delay Spike in Midwest */}
-        <div className="p-3.5 rounded-xl bg-rose-50/50 border border-rose-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className={`p-3.5 rounded-xl border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors ${
+          guardrails.midwestTrace ? 'bg-emerald-50/30 border-emerald-300' : 'bg-rose-50/40 border-rose-200'
+        }`}>
           <div className="flex items-start gap-2.5">
-            <div className="p-1.5 rounded-lg bg-rose-100 text-rose-700 flex-shrink-0 mt-0.5">
-              <AlertTriangle className="w-4 h-4" />
+            <div className={`p-1.5 rounded-lg flex-shrink-0 mt-0.5 ${
+              guardrails.midwestTrace ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700'
+            }`}>
+              {guardrails.midwestTrace ? <CheckCircle2 className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <span className="font-bold text-slate-900">Carrier Delay Spike in Midwest (USPS Priority)</span>
-                <span className="px-2 py-0.2 rounded text-[10px] font-bold uppercase bg-rose-600 text-white">
-                  High Priority
-                </span>
+                {guardrails.midwestTrace ? (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" />
+                    Enforcing (Active)
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-50 text-amber-700 border border-amber-200">
+                    Monitoring
+                  </span>
+                )}
               </div>
               <p className="text-slate-600 text-[11px] leading-relaxed">
                 5 pending INR claims cluster around Chicago transit hub. Recommendation: Automatically request carrier research updates before dispute filing.
@@ -76,30 +111,41 @@ export default function AlertPanel({ className = '' }) {
           </div>
 
           <button
-            onClick={() => handleToggle('autoTrace', 'Midwest Auto-Trace')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 flex-shrink-0 shadow-xs ${
-              toggles.autoTrace
-                ? 'bg-emerald-600 text-white'
+            onClick={() => handleToggle('midwestTrace', 'Midwest Carrier Delay Auto-Trace')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 flex-shrink-0 shadow-xs cursor-pointer select-none ${
+              guardrails.midwestTrace
+                ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                 : 'bg-[#0079C1] hover:bg-[#00457C] text-white'
             }`}
           >
             <Zap className="w-3.5 h-3.5 fill-current" />
-            <span>{toggles.autoTrace ? 'Active' : 'Enable Auto-Trace'}</span>
+            <span>{guardrails.midwestTrace ? 'Enforcing' : 'Activate Policy'}</span>
           </button>
         </div>
 
         {/* Signal 2: High-Value Orders Signature Gap */}
-        <div className="p-3.5 rounded-xl bg-blue-50/40 border border-blue-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className={`p-3.5 rounded-xl border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors ${
+          guardrails.signatureGap ? 'bg-emerald-50/30 border-emerald-300' : 'bg-blue-50/40 border-blue-200'
+        }`}>
           <div className="flex items-start gap-2.5">
-            <div className="p-1.5 rounded-lg bg-blue-100 text-[#00457C] flex-shrink-0 mt-0.5">
-              <FileCheck className="w-4 h-4" />
+            <div className={`p-1.5 rounded-lg flex-shrink-0 mt-0.5 ${
+              guardrails.signatureGap ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-[#00457C]'
+            }`}>
+              {guardrails.signatureGap ? <CheckCircle2 className="w-4 h-4" /> : <FileCheck className="w-4 h-4" />}
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <span className="font-bold text-slate-900">High-Value Orders (&gt;$250) Signature Gap</span>
-                <span className="px-2 py-0.2 rounded text-[10px] font-bold uppercase bg-blue-100 text-[#00457C] border border-blue-200">
-                  Medium Risk
-                </span>
+                {guardrails.signatureGap ? (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" />
+                    Enforcing (Active)
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-50 text-amber-700 border border-amber-200">
+                    Monitoring
+                  </span>
+                )}
               </div>
               <p className="text-slate-600 text-[11px] leading-relaxed">
                 Orders between $250-$400 without mandatory signature have 3x higher loss rate. Recommendation: Enforce signature confirmation rule in checkout integration.
@@ -108,41 +154,58 @@ export default function AlertPanel({ className = '' }) {
           </div>
 
           <button
-            onClick={() => handleToggle('policyRule', 'Signature Policy Guardrail')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 flex-shrink-0 shadow-xs ${
-              toggles.policyRule
-                ? 'bg-emerald-600 text-white'
+            onClick={() => handleToggle('signatureGap', 'High-Value Signature Confirmation')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 flex-shrink-0 shadow-xs cursor-pointer select-none ${
+              guardrails.signatureGap
+                ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                 : 'bg-white hover:bg-slate-50 border border-slate-300 text-slate-800'
             }`}
           >
-            <span>{toggles.policyRule ? 'Enforced' : 'Apply Policy Rule'}</span>
+            <Zap className="w-3.5 h-3.5 fill-current" />
+            <span>{guardrails.signatureGap ? 'Enforced' : 'Apply Policy Rule'}</span>
           </button>
         </div>
 
-        {/* Signal 3: Precedent RAG Engine Success */}
-        <div className="p-3.5 rounded-xl bg-emerald-50/40 border border-emerald-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Signal 3: Return Policy Disclaimer Missing on Checkout */}
+        <div className={`p-3.5 rounded-xl border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors ${
+          guardrails.returnPolicy ? 'bg-emerald-50/30 border-emerald-300' : 'bg-slate-50 border-slate-200'
+        }`}>
           <div className="flex items-start gap-2.5">
-            <div className="p-1.5 rounded-lg bg-emerald-100 text-emerald-800 flex-shrink-0 mt-0.5">
-              <CheckCircle2 className="w-4 h-4" />
+            <div className={`p-1.5 rounded-lg flex-shrink-0 mt-0.5 ${
+              guardrails.returnPolicy ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'
+            }`}>
+              {guardrails.returnPolicy ? <CheckCircle2 className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="font-bold text-slate-900">Precedent RAG Engine Success</span>
-                <span className="px-2 py-0.2 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">
-                  AI Optimized
-                </span>
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <span className="font-bold text-slate-900">Return Policy Disclaimer Missing on Checkout</span>
+                {guardrails.returnPolicy ? (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" />
+                    Enforcing (Active)
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-50 text-amber-700 border border-amber-200">
+                    Monitoring
+                  </span>
+                )}
               </div>
               <p className="text-slate-600 text-[11px] leading-relaxed">
-                Autonomous evidence submission saved <span className="font-bold text-slate-900">$34,200</span> this cycle with zero merchant interventions.
+                SNAD claims increased 12% due to unacknowledged return window terms. Recommendation: Inject verified PayPal return disclaimer into checkout footer.
               </p>
             </div>
           </div>
 
           <button
-            onClick={() => toastContext?.toast?.info('RAG Precedent Engine', 'Vector cluster 1,428 cases indexed with cosine > 0.85.')}
-            className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 flex-shrink-0 shadow-xs"
+            onClick={() => handleToggle('returnPolicy', 'Return Policy Checkout Injection')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 flex-shrink-0 shadow-xs cursor-pointer select-none ${
+              guardrails.returnPolicy
+                ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                : 'bg-white hover:bg-slate-50 border border-slate-300 text-slate-800'
+            }`}
           >
-            <span>View RAG Precedents</span>
+            <Zap className="w-3.5 h-3.5 fill-current" />
+            <span>{guardrails.returnPolicy ? 'Injected (Active)' : 'Inject Disclaimer'}</span>
           </button>
         </div>
       </div>

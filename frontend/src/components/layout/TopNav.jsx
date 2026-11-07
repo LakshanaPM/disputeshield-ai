@@ -22,14 +22,60 @@ export default function TopNav({
   currentView = 'queue',
   onSelectView,
   isWsConnected = true,
+  lastMessage = null,
   onToggleSidebar,
   isSidebarExpanded = false,
 }) {
   const [riskData, setRiskData] = useState(null);
-  const [notificationCount] = useState(3);
+  const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
   const toastContext = useToast();
+
+  // Load initial notifications from real disputes
+  useEffect(() => {
+    async function loadNotifications() {
+      try {
+        const res = await axios.get('/api/disputes', {
+          params: { start_row: 0, end_row: 4, sort_col: 'created_at', sort_dir: 'desc' },
+        });
+        const rows = res.data?.rows || [];
+        const notifs = rows.map((d) => ({
+          id: d.paypal_dispute_id,
+          title: `Dispute ${d.paypal_dispute_id}`,
+          reason: d.reason?.replace(/_/g, ' ') || 'Dispute Ingested',
+          status: d.agent_decision || d.status || 'UNDER_REVIEW',
+          amount: Number(d.dispute_amount || 0).toFixed(2),
+          currency: d.dispute_currency || 'USD',
+          time: 'Active',
+        }));
+        setNotifications(notifs);
+      } catch (e) {
+        // Fallback gracefully
+      }
+    }
+    loadNotifications();
+  }, []);
+
+  // Prepend live WebSocket events to activity feed
+  useEffect(() => {
+    if (!lastMessage) return;
+    if (['new_dispute', 'agent_decision', 'evidence_submitted'].includes(lastMessage.type)) {
+      const isAuto = lastMessage.decision === 'AUTO_SUBMITTED' || lastMessage.type === 'evidence_submitted';
+      const newNotif = {
+        id: lastMessage.dispute_id || `PP-D-${Date.now().toString().slice(-4)}`,
+        title: `Dispute ${lastMessage.dispute_id || 'Alert'}`,
+        reason: isAuto
+          ? 'Rebuttal dispatched to PayPal Resolution API'
+          : (lastMessage.reason?.replace(/_/g, ' ') || 'Incoming Dispute Ingested'),
+        status: lastMessage.decision || (isAuto ? 'AUTO_SUBMITTED' : 'UNDER_REVIEW'),
+        amount: lastMessage.amount ? Number(lastMessage.amount).toFixed(2) : undefined,
+        currency: lastMessage.currency || 'USD',
+        time: 'Just now',
+      };
+      setNotifications((prev) => [newNotif, ...prev.filter((n) => n.id !== newNotif.id).slice(0, 4)]);
+    }
+  }, [lastMessage]);
 
   useEffect(() => {
     async function fetchRiskScore() {
@@ -165,26 +211,56 @@ export default function TopNav({
               aria-label="Notifications"
             >
               <Bell className="w-4 h-4" />
-              {notificationCount > 0 && (
+              {notifications.length > 0 && (
                 <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#0079C1] ring-2 ring-white" />
               )}
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl p-3 z-50 animate-fade-in border border-slate-200 text-xs">
-                <div className="font-bold text-slate-900 pb-2 border-b border-slate-100 flex justify-between items-center">
+              <div className="absolute right-0 mt-2 w-84 bg-white rounded-xl shadow-xl p-3.5 z-50 animate-fade-in border border-slate-200 text-xs">
+                <div className="font-bold text-slate-900 pb-2.5 border-b border-slate-100 flex justify-between items-center">
                   <span>Autonomous Activity Feed</span>
-                  <span className="text-[10px] text-slate-500 font-medium">3 recent</span>
+                  <span className="text-[10px] text-slate-500 font-medium">
+                    {notifications.length} recent
+                  </span>
                 </div>
-                <div className="py-2 space-y-2">
-                  <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
-                    <p className="font-semibold text-slate-800">Dispute PP-D-89421-US</p>
-                    <p className="text-slate-500 text-[11px]">Auto-submitted with UPS tracking proof.</p>
-                  </div>
-                  <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
-                    <p className="font-semibold text-slate-800">Dispute PP-D-89419-CA</p>
-                    <p className="text-slate-500 text-[11px]">Draft ready for 1-click merchant review.</p>
-                  </div>
+                <div className="py-2 space-y-2 max-h-72 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="py-6 text-center text-slate-400 text-xs">
+                      No recent notifications
+                    </div>
+                  ) : (
+                    notifications.map((n) => (
+                      <div
+                        key={n.id}
+                        className="p-2.5 rounded-lg bg-slate-50 hover:bg-slate-100/80 border border-slate-100 transition-colors"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="font-bold text-slate-800 text-[11px] truncate">{n.title}</p>
+                          <span
+                            className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase shrink-0 ${
+                              n.status === 'AUTO_SUBMITTED'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : n.status === 'DRAFT_PENDING_REVIEW' || n.status === 'PENDING'
+                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                : 'bg-blue-50 text-[#0079C1] border border-blue-200'
+                            }`}
+                          >
+                            {n.status === 'AUTO_SUBMITTED'
+                              ? 'Auto-Submitted'
+                              : n.status === 'DRAFT_PENDING_REVIEW'
+                              ? 'Pending Review'
+                              : n.status}
+                          </span>
+                        </div>
+                        <p className="text-slate-600 text-[11px] mt-0.5 line-clamp-1">{n.reason}</p>
+                        <div className="flex items-center justify-between text-[10px] text-slate-400 mt-1 pt-1 border-t border-slate-200/50">
+                          <span>{n.amount ? `$${n.amount} ${n.currency}` : 'PayPal Claim'}</span>
+                          <span>{n.time}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             )}

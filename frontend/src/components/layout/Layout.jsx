@@ -29,6 +29,7 @@ export default function Layout({
         currentView={currentView}
         onSelectView={onSelectView}
         isWsConnected={isWsConnected}
+        lastMessage={lastMessage}
         isSidebarExpanded={isSidebarExpanded}
         onToggleSidebar={() => setIsSidebarExpanded(!isSidebarExpanded)}
       />
