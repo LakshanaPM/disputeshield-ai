@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import axios from 'axios';
 import { X, Search, Sparkles, Database, ShieldCheck, Cpu, ArrowUpRight, CheckCircle2 } from 'lucide-react';
 
 const SEEDED_PRECEDENTS = [
@@ -77,12 +78,29 @@ const SEEDED_PRECEDENTS = [
 ];
 
 export default function PrecedentModal({ isOpen, onClose }) {
+  const [precedentsList, setPrecedentsList] = useState(SEEDED_PRECEDENTS);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [expandedVectorId, setExpandedVectorId] = useState(null);
 
+  useEffect(() => {
+    async function fetchPrecedents() {
+      try {
+        const res = await axios.get('/api/analytics/precedents');
+        if (res.data?.precedents && res.data.precedents.length > 0) {
+          setPrecedentsList(res.data.precedents);
+        }
+      } catch (err) {
+        // Graceful fallback to seeded precedents
+      }
+    }
+    if (isOpen) {
+      fetchPrecedents();
+    }
+  }, [isOpen]);
+
   const filteredPrecedents = useMemo(() => {
-    return SEEDED_PRECEDENTS.filter((item) => {
+    return precedentsList.filter((item) => {
       const matchesCat = selectedCategory === 'ALL' || item.category === selectedCategory;
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
@@ -93,7 +111,7 @@ export default function PrecedentModal({ isOpen, onClose }) {
         item.features.some((f) => f.toLowerCase().includes(q));
       return matchesCat && matchesSearch;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [precedentsList, searchQuery, selectedCategory]);
 
   if (!isOpen) return null;
 
@@ -276,3 +294,4 @@ export default function PrecedentModal({ isOpen, onClose }) {
     </div>
   );
 }
+
