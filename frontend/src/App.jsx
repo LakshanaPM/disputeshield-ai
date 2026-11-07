@@ -6,6 +6,7 @@ import StatCards from './components/dashboard/StatCards';
 import DisputeGrid from './components/grid/DisputeGrid';
 import RiskDashboardView from './components/analytics/RiskDashboardView';
 import AgentStreamView from './components/agent/AgentStreamView';
+import PrecedentModal from './components/common/PrecedentModal';
 import { ToastProvider, useToast } from './components/common/Toast';
 import useWebSocket from './hooks/useWebSocket';
 import {
@@ -22,6 +23,7 @@ function DashboardContent() {
   const [currentView, setCurrentView] = useState('queue'); // 'queue' | 'analytics' | 'agent'
   const [isExecutingRun, setIsExecutingRun] = useState(false);
   const [isSyncingSandbox, setIsSyncingSandbox] = useState(false);
+  const [isPrecedentModalOpen, setIsPrecedentModalOpen] = useState(false);
   const [riskMetrics, setRiskMetrics] = useState({ current_dispute_ratio: 0.88, risk_band: 'GREEN' });
   const lastProcessedMsgKeyRef = useRef(null);
 
@@ -211,7 +213,10 @@ function DashboardContent() {
                 <p className="text-slate-600 text-[11px] leading-relaxed">
                   Empirical win rate: 78.1% across 18 INR, 8 SNAD, and 6 Unauthorized transaction precedents.
                 </p>
-                <div className="pt-1 flex items-center gap-1.5 text-paypal-marine hover:text-paypal-navy font-semibold hover:underline cursor-pointer text-[11px]">
+                <div
+                  onClick={() => setIsPrecedentModalOpen(true)}
+                  className="pt-1 flex items-center gap-1.5 text-paypal-marine hover:text-paypal-navy font-semibold hover:underline cursor-pointer text-[11px] select-none"
+                >
                   <span>Explore precedent embeddings</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </div>
@@ -228,6 +233,12 @@ function DashboardContent() {
       {currentView === 'agent' && (
         <AgentStreamView lastMessage={lastMessage} />
       )}
+
+      {/* RAG Precedent Vector Embeddings Explorer Modal */}
+      <PrecedentModal
+        isOpen={isPrecedentModalOpen}
+        onClose={() => setIsPrecedentModalOpen(false)}
+      />
     </Layout>
   );
 }

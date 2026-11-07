@@ -7,24 +7,44 @@ Includes merchant evidence approval with PayPal Sandbox submission.
 """
 
 import logging
+import sys
 from datetime import datetime
-from typing import Optional
+from pathlib import Path
+from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, asc
 
-from database import get_db
-from models.dispute import Dispute, DisputeStatus
-from models.evidence import Evidence, EvidenceStatus
-from services.paypal_client import PayPalClient, PayPalAPIError
-from schemas.dispute import (
-    DisputeResponse,
-    DisputeListResponse,
-    DisputeListItem,
-    DisputeApproveRequest,
-    DisputeOverrideRequest,
-)
-from api.ws import broadcast_message
+backend_dir = Path(__file__).resolve().parent.parent
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
+
+try:
+    from database import get_db
+    from models.dispute import Dispute, DisputeStatus
+    from models.evidence import Evidence, EvidenceStatus
+    from services.paypal_client import PayPalClient, PayPalAPIError
+    from schemas.dispute import (
+        DisputeResponse,
+        DisputeListResponse,
+        DisputeListItem,
+        DisputeApproveRequest,
+        DisputeOverrideRequest,
+    )
+    from api.ws import broadcast_message
+except ImportError:
+    from backend.database import get_db
+    from backend.models.dispute import Dispute, DisputeStatus
+    from backend.models.evidence import Evidence, EvidenceStatus
+    from backend.services.paypal_client import PayPalClient, PayPalAPIError
+    from backend.schemas.dispute import (
+        DisputeResponse,
+        DisputeListResponse,
+        DisputeListItem,
+        DisputeApproveRequest,
+        DisputeOverrideRequest,
+    )
+    from backend.api.ws import broadcast_message
 
 logger = logging.getLogger(__name__)
 
@@ -309,7 +329,7 @@ async def sync_paypal_sandbox(db: Session = Depends(get_db)):
                         reason=item.get("reason", "MERCHANDISE_OR_SERVICE_NOT_RECEIVED"),
                         status=item.get("status", "UNDER_REVIEW"),
                         dispute_amount=amount_val,
-                        currency=curr_val,
+                        dispute_currency=curr_val,
                         buyer_email=item.get("buyer", {}).get("email_address", "sandbox-buyer@example.com"),
                         agent_decision="PENDING",
                     )
