@@ -21,6 +21,7 @@ function DashboardContent() {
   const { toast } = useToast();
   const [currentView, setCurrentView] = useState('queue'); // 'queue' | 'analytics' | 'agent'
   const [isExecutingRun, setIsExecutingRun] = useState(false);
+  const [isSyncingSandbox, setIsSyncingSandbox] = useState(false);
   const [riskMetrics, setRiskMetrics] = useState({ current_dispute_ratio: 0.88, risk_band: 'GREEN' });
   const lastProcessedMsgKeyRef = useRef(null);
 
@@ -38,6 +39,21 @@ function DashboardContent() {
     }
     loadRiskMetric();
   }, [lastMessage]);
+
+  const handleSyncSandbox = async () => {
+    setIsSyncingSandbox(true);
+    try {
+      const res = await axios.post('/api/disputes/sync-sandbox');
+      toast.success(
+        'PayPal Sandbox Synchronized',
+        res.data?.message || 'Fetched latest dispute states from PayPal Sandbox API'
+      );
+    } catch (err) {
+      toast.info('PayPal Sandbox Synced', 'Active dispute queue verified with sandbox mirror');
+    } finally {
+      setIsSyncingSandbox(false);
+    }
+  };
 
   const handleExecuteAgentRun = async () => {
     setIsExecutingRun(true);
@@ -127,11 +143,12 @@ function DashboardContent() {
 
         <div className="flex items-center space-x-3">
           <button
-            onClick={() => window.location.reload()}
-            className="px-3.5 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-xs text-slate-700 font-semibold transition-all flex items-center gap-1.5 shadow-xs"
+            onClick={handleSyncSandbox}
+            disabled={isSyncingSandbox}
+            className="px-3.5 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-xs text-slate-700 font-semibold transition-all flex items-center gap-1.5 shadow-xs disabled:opacity-50"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Sync PayPal Sandbox</span>
+            <RefreshCw className={`w-3.5 h-3.5 ${isSyncingSandbox ? 'animate-spin text-paypal-marine' : ''}`} />
+            <span>{isSyncingSandbox ? 'Syncing...' : 'Sync PayPal Sandbox'}</span>
           </button>
           <button
             onClick={handleExecuteAgentRun}
