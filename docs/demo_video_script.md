@@ -1,95 +1,139 @@
+# DisputeShield AI — Spoken Demo Video Script (Conversational & Natural)
 
-# DisputeShield AI — 3-Minute Demo Video Script (Shark Tank Format)
-
-> **Target Duration:** 2 minutes 45 seconds – 2 minutes 55 seconds  
-> **Resolution:** 1080p (60fps recommended)  
-> **Key Visuals:** DisputeShield UI, AG Grid Enterprise Drawer, Live Agent Execution, PayPal Resolution Dispatch
-
----
-
-### [0:00 - 0:25] The Hook & The Problem
-**Visual:** Screen starts on clean desktop; mouse cursor opens DisputeShield AI dashboard (`http://localhost:5173` or live Render URL). The high-contrast PayPal Dual-Blue TopNav and AG Grid load crisply.
-
-**Voiceover (Confident, energetic):**
-> "Every single day, online merchants lose **43% of customer disputes**—not because their products are faulty, but because they simply run out of time to collect evidence before PayPal's 10-day deadline expires.
->
-> Collecting FedEx tracking receipts, customer support emails, and signed invoices takes up to 45 minutes per dispute. For high-volume sellers, this is an operational nightmare costing billions in lost revenue.
->
-> Meet **DisputeShield AI**—the autonomous dispute defense agent built specifically for PayPal merchants."
+> **Format:** Spoken video walkthrough (Natural, enthusiastic, founder-style demo)  
+> **Duration:** ~2 minutes 45 seconds (Safe margin under the 3-minute hard limit)  
+> **Screen:** `https://disputeshield-frontend-gt1j.onrender.com` (Fullscreen `F11`)  
+> **Tip:** Read naturally like you are talking to a colleague or hackathon judge. Don't rush! Pauses (`...`) are marked for natural breathing.
 
 ---
 
-### [0:25 - 0:50] The AG Grid Command Center
-**Visual:** Camera pans over the Stat Cards (`$248,500 Protected Revenue`, `89.4% Win Rate`, `45s Avg Response Time`). Scroll smoothly down to the **AG Grid Enterprise** table. Click a column header to demonstrate multi-column sorting, then expand a row drawer.
+## 🎙️ Spoken Script & Screen Actions
 
-**Voiceover:**
-> "Here is the merchant command center, powered by **AG Grid Enterprise**.
+### [0:00 – 0:25] The Hook & The Problem
+**👉 What you do on screen:**
+- Start with the live dashboard already open in Chrome (`F11` fullscreen).
+- Gently move your mouse over the top cards and the table.
+
+**🗣️ What you say (Warm, engaging, natural):**
+> "Hey everyone!
 >
-> Using AG Grid's Server-Side Row Model, merchants can monitor tens of thousands of active dispute claims with sub-millisecond sorting, filtering, and real-time status updates.
+> Did you know that online merchants actually lose almost **half** of all customer disputes... simply because they run out of time?
 >
-> When we expand any dispute row using AG Grid's Master-Detail drawer, we immediately see the complete audit trail: the customer's claim, transaction details, and the historical dispute lifecycle."
+> Think about it: a customer opens a dispute, and PayPal gives you just ten days to respond. Tracking down FedEx tracking numbers, finding delivery signatures, and writing formal legal letters takes 40 to 50 minutes for a single case. For busy sellers, thousands of dollars just slip through the cracks.
+>
+> That's why we built **DisputeShield AI**—an autonomous defense agent that handles PayPal disputes for you, in real time."
 
 ---
 
-### [0:50 - 1:40] The Live Agent In Action (The "Magic" Moment)
-**Visual:** Move mouse to top navigation bar. Click the **"Simulate Webhook & Agent Run"** button.  
-Switch to the **"Agent Reasoning Stream"** tab.  
-The live WebSocket feeds step-by-step agent telemetry in real time:
-1. `Webhook received: CUSTOMER.DISPUTE.CREATED (PP-D-84920)`
-2. `MCP Tool Invocation: fetch_carrier_tracking(FedEx #794612349876) -> DELIVERED`
-3. `Deterministic Policy Check: PayPal Seller Protection -> ELIGIBLE`
-4. `Confidence Scorer: Evaluated 5 dimensions -> 94% WIN PROBABILITY`
-5. Status Banner updates: `Rebuttal Dispatched to PayPal Resolution API` with `Auto-Dispatched` emerald badge!
+### [0:25 – 0:55] The Command Center & AG Grid Drawer
+**👉 What you do on screen:**
+- Point cursor to the top stats: *22 open claims*, *83.3% win rate*, *$870 protected*.
+- Click the **"DISPUTED AMOUNT"** column header twice (shows sorting).
+- Click the **"Requires Review / Drafts"** tab, then click back to **"All Disputes"**.
+- Click **"Details ⌵"** on row `PP-D-UNAUTH-3002` to open the drawer.
 
-**Voiceover:**
-> "Now let's watch the agent in action. A customer has just opened an *Unauthorized Transaction* dispute for a $389.00 order.
+**🗣️ What you say (Conversational, pointing out features):**
+> "Right here is the merchant dashboard, built on **AG Grid Enterprise**.
 >
-> Instantly, DisputeShield's backend verifies the PayPal webhook signature and wakes up our autonomous LangChain agent.
+> With AG Grid's server-side engine, merchants can easily scroll, sort, and filter through thousands of claims with zero lag.
 >
-> Watch the live reasoning trace: via the **Model Context Protocol (MCP)**, the agent queries FedEx logistics tools in real time. It discovers that the package was signed by the customer at the verified PayPal shipping address.
+> But watch what happens when I expand any dispute row...
 >
-> Next, our deterministic confidence engine evaluates the evidence against PayPal's Seller Protection rules. The result: **94% win confidence**—exceeding our 85% autonomous threshold.
->
-> Within 12 seconds, the agent drafts an airtight legal rebuttal, attaches the carrier receipt, and dispatches it directly to the PayPal Dispute Resolution API. No human intervention needed."
+> Instantly, AG Grid's master-detail drawer pulls up the entire case:
+> Over on the left, we have the order details and the buyer's exact complaint.
+> In the middle, live carrier telematics verify that FedEx actually delivered the package to the buyer's zip code, 90210.
+> And on the right, our RAG engine automatically matches the case against PayPal's Seller Protection rules."
 
 ---
 
-### [1:40 - 2:10] Human-in-the-Loop & Interactive Drawer
-**Visual:** Click the **"Disputes Grid"** tab. Filter to a dispute with amber badge `Pending Approval` (confidence 74%). Click the row to expand the detail drawer. Show the generated rebuttal text, the Evidence Checklist with yellow warnings, and the prominent **"Approve & Submit Rebuttal"** button.
+### [0:55 – 1:40] Live Agent In Action (The "Magic" Moment)
+**👉 What you do on screen:**
+- Scroll down slightly inside the drawer to show the auto-drafted statement.
+- Move up to the TopNav and click the blue **"Simulate Webhook"** button.
+- A toast notification pops up in the top right.
+- Click the **"AI Stream"** button in the top right corner—the drawer slides open!
+- Point cursor at the new event and the green checkmarks in the execution chain.
 
-**Voiceover:**
-> "What about ambiguous cases? When confidence falls below 85%—for example, when an item is claimed as 'Significantly Not As Described'—DisputeShield never gambles with merchant reputation.
+**🗣️ What you say (Excited, dynamic):**
+> "Now, let’s see the AI agent in action.
 >
-> Instead, it stages an interactive defense packet. Merchants see clear missing evidence callouts, can edit the AI-generated rebuttal draft, and click 'Approve & Submit' with a single tap. Complete automation when confidence is high; complete control when it counts."
+> I'm going to simulate a real PayPal webhook arriving right now... *[Click 'Simulate Webhook']*
+>
+> Boom. A new unauthorized transaction dispute just landed.
+>
+> Let's open our live **AI Agent Stream** on the right.
+>
+> Look at what the agent is doing step-by-step:
+> It instantly grabs the webhook...
+> Uses the Model Context Protocol to query FedEx tracking...
+> Verifies the customer's delivery coordinates...
+> And pulls similar winning cases from our vector database.
+>
+> Because confidence is high—88%—the agent doesn't even need to bother the merchant. It signs the evidence, packages it up, and dispatches it straight to the PayPal Resolution API in seconds. Completely hands-free."
 
 ---
 
-### [2:10 - 2:35] Predictive Risk & Portfolio Forensics
-**Visual:** Click the **"Risk Forensics"** tab in the top navigation. The radial Risk Gauge animates, showing the merchant's dispute rate at `0.42%` (comfortably below PayPal's `1.0%` threshold). Highlight the Trend Chart and Reason Breakdown.
+### [1:40 – 2:10] Human-in-the-Loop & 1-Click Approve
+**👉 What you do on screen:**
+- Close the sidebar stream (click `✕`).
+- In the table, find row `PP-D-UNAUTH-3004` (with the amber badge `Draft (Pending Review)`) and click **"Review & Sign →"**.
+- Inside the drawer, click **"Edit Statement"** and type a few words into the box.
+- Click the big blue button: **"1-Click Approve & Submit to PayPal API"**.
+- The green success banner pops up!
+- Click the **Bell icon** in the top bar to show the notification feed.
 
-**Voiceover:**
-> "Finally, prevention is better than cure. Our **Risk Forensics Dashboard** tracks the merchant's global dispute rate in real time against PayPal's critical 1% monitoring threshold.
+**🗣️ What you say (Clear, reassuring):**
+> "Now, what about tricky cases where the AI isn't 100% sure?
 >
-> Powered by Elasticsearch and predictive heuristics, merchants get early warnings on spike trends, fraud clusters, and high-risk SKUs before chargebacks damage their merchant standing."
+> That's where our **Human-in-the-Loop** mode comes in.
+>
+> Take a look at this case marked *Draft: Pending Review*. The agent gathered all the evidence and wrote a complete defense statement, but it held back from submitting automatically.
+>
+> As a merchant, I can click *Edit Statement*, add any extra context I want, and when I'm happy, I just hit **1-Click Approve & Submit**.
+>
+> *[Click button]*
+>
+> Just like that, it's submitted directly to PayPal. You get total automation for straightforward claims, but full human control whenever you need it."
 
 ---
 
-### [2:35 - 2:55] Architecture & Closing Pitch
-**Visual:** Flash the Clean Architecture Diagram (Frontend $\leftrightarrow$ FastAPI $\leftrightarrow$ Celery/PostgreSQL $\leftrightarrow$ Gemini 1.5 $\leftrightarrow$ PayPal MCP $\leftrightarrow$ AG Grid Enterprise). End on the DisputeShield logo with GitHub and Devpost links.
+### [2:10 – 2:35] Risk Analytics & Precedent Embeddings
+**👉 What you do on screen:**
+- Click the **"Risk & Limitation Analytics"** tab in the navigation bar.
+- Point to the **Account Health Gauge** (the speedometer) and the 30-day trend chart.
+- Toggle the switch on **"Carrier Delay Spike in Midwest"** (it turns green with a toast!).
+- Switch back to the **"Dispute Queue"** tab, scroll to the bottom right card, and click **"Explore precedent embeddings ↗"**.
+- The modal opens: show the 32 cases and click **"Inspect Vector"** on any row.
 
-**Voiceover (Strong, memorable finish):**
-> "Under the hood, DisputeShield AI combines **PayPal APIs**, the **Model Context Protocol**, **Google Gemini**, and **AG Grid Enterprise** into an end-to-end production solution with multi-language TypeScript and Python SDKs.
+**🗣️ What you say (Informative, showing depth):**
+> "DisputeShield doesn't just fight disputes—it helps prevent them.
 >
-> Stop bleeding revenue to missed deadlines. Protect your bottom line with **DisputeShield AI**—autonomous dispute defense that never sleeps.
+> Over on our **Risk Analytics** tab, this live health gauge tracks our dispute ratio against PayPal's critical 1.5% limit.
 >
-> Thank you."
+> If there's a delivery delay spike in the Midwest, we can turn on a predictive guardrail with one click to require signature confirmation before chargebacks happen.
+>
+> And down here, our **Precedent Retrieval Engine** stores 32 historical case embeddings. You can literally explore the 1536-dimensional vector space our AI searches to find winning defense strategies."
 
 ---
 
-### 🎥 OBS Studio Recording Checklist:
-- [ ] Display resolution: 1920x1080, 60fps, Bitrate 12,000 kbps.
-- [ ] Browser zoom: 100% or 110% (ensure all AG Grid text and cards are crisp).
-- [ ] Clean desktop: Close Slack, Discord, email, WhatsApp, and browser bookmarks bar.
-- [ ] Seed fresh data: Run `python scripts/seed_demo_disputes.py` before Take 1.
-- [ ] Audio: Test mic gain; ensure zero background noise or fan hum.
+### [2:35 – 2:55] Closing & Wrap Up
+**👉 What you do on screen:**
+- Close the modal (`✕`) so you are back on the clean, beautiful main dashboard.
+- Mouse rests near the logo. Hold the screen steady.
 
+**🗣️ What you say (Warm, punchy closing):**
+> "Under the hood, DisputeShield combines **PayPal's APIs and Model Context Protocol**, **AG Grid Enterprise**, and **Vector RAG** into a production-ready solution deployed live on Render.
+>
+> No more missed deadlines. No more lost revenue.
+>
+> With **DisputeShield AI**, merchants can finally put their dispute defense on autopilot.
+>
+> Thanks so much for watching!"
+
+---
+
+## 💡 Quick Tips for a Flawless Recording
+1. **Talk to a person:** Imagine you are showing this to a friend on a Zoom call. Smile while speaking—it actually makes your voice sound warmer!
+2. **Don't rush the clicks:** After you click a button (like *Simulate Webhook* or *Approve*), pause for 1 second so the viewer can see the toast or banner appear before you start talking about it.
+3. **If you make a mistake:** Don't restart the whole video! Just pause for 3 seconds, take a breath, and re-read that one sentence. You can easily cut out the silence in any free editor (like CapCut, Clipchamp, or Premiere).
+4. **Timer Check:** Practice once with a phone stopwatch. Aiming for around **2 minutes 45 seconds** gives you plenty of safety under the 3-minute cutoff.
