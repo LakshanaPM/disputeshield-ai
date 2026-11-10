@@ -7,6 +7,7 @@ import DisputeGrid from './components/grid/DisputeGrid';
 import RiskDashboardView from './components/analytics/RiskDashboardView';
 import AgentStreamView from './components/agent/AgentStreamView';
 import PrecedentModal from './components/common/PrecedentModal';
+import LoginPage from './components/auth/LoginPage';
 import { ToastProvider, useToast } from './components/common/Toast';
 import useWebSocket from './hooks/useWebSocket';
 import {
@@ -17,7 +18,7 @@ import {
   Loader2,
 } from 'lucide-react';
 
-function DashboardContent() {
+function DashboardContent({ user, onLogout }) {
   const { isConnected, lastMessage } = useWebSocket();
   const { toast } = useToast();
   const [currentView, setCurrentView] = useState('queue'); // 'queue' | 'analytics' | 'agent'
@@ -122,6 +123,8 @@ function DashboardContent() {
       onSelectView={setCurrentView}
       isWsConnected={isConnected}
       lastMessage={lastMessage}
+      user={user}
+      onLogout={onLogout}
     >
       {/* 1. Header Hero Title & Action Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -244,9 +247,33 @@ function DashboardContent() {
 }
 
 export default function App() {
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('disputeshield_user') || sessionStorage.getItem('disputeshield_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  const handleLogout = async () => {
+    try {
+      await axios.post('/api/auth/logout');
+    } catch (e) {
+      // ignore
+    }
+    localStorage.removeItem('disputeshield_user');
+    sessionStorage.removeItem('disputeshield_user');
+    setUser(null);
+  };
+
   return (
     <ToastProvider>
-      <DashboardContent />
+      {!user ? (
+        <LoginPage onLoginSuccess={(userData) => setUser(userData)} />
+      ) : (
+        <DashboardContent user={user} onLogout={handleLogout} />
+      )}
     </ToastProvider>
   );
 }
