@@ -27,7 +27,6 @@ from api import (
     disputes_router,
     analytics_router,
     ws_router,
-    auth_router,
 )
 
 # Configure logging
@@ -110,7 +109,6 @@ app.add_middleware(
 )
 
 # 4. Mount all existing routers under designated prefixes
-app.include_router(auth_router, prefix="/api")
 app.include_router(webhooks_router, prefix="/api/webhooks")
 app.include_router(disputes_router, prefix="/api/disputes")
 app.include_router(analytics_router, prefix="/api/analytics")

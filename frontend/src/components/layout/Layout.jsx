@@ -8,8 +8,6 @@ export default function Layout({
   onSelectView,
   isWsConnected = true,
   lastMessage = null,
-  user = null,
-  onLogout,
 }) {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
@@ -34,8 +32,6 @@ export default function Layout({
         lastMessage={lastMessage}
         isSidebarExpanded={isSidebarExpanded}
         onToggleSidebar={() => setIsSidebarExpanded(!isSidebarExpanded)}
-        user={user}
-        onLogout={onLogout}
       />
 
       {/* Main Container: Central Viewport + Collapsible Slide-over Stream */}
