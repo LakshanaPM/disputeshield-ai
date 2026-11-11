@@ -35,7 +35,7 @@ async def get_analytics_summary(db: Session = Depends(get_db)):
     total = db.query(func.count(Dispute.id)).scalar() or 0
     review_needed = (
         db.query(func.count(Dispute.id))
-        .filter(Dispute.agent_decision == "DRAFT_PENDING_REVIEW")
+        .filter(Dispute.agent_decision.in_(["DRAFT_PENDING_REVIEW", "PENDING"]))
         .scalar()
         or 0
     )

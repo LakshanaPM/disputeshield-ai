@@ -74,7 +74,9 @@ async def list_disputes(
     if filter_tab:
         tab_upper = filter_tab.upper()
         if tab_upper in ("REVIEW_NEEDED", "DRAFT_PENDING_REVIEW"):
-            query = query.filter(Dispute.agent_decision == "DRAFT_PENDING_REVIEW")
+            query = query.filter(
+                Dispute.agent_decision.in_(["DRAFT_PENDING_REVIEW", "PENDING"])
+            )
         elif tab_upper == "AUTO_SUBMITTED":
             query = query.filter(Dispute.agent_decision == "AUTO_SUBMITTED")
         elif tab_upper == "ESCALATED":
@@ -357,4 +359,82 @@ async def sync_paypal_sandbox(db: Session = Depends(get_db)):
         }
     finally:
         await paypal_client.close()
+
+
+@router.post("/reset-demo-data")
+async def reset_demo_disputes(db: Session = Depends(get_db)):
+    """
+    Resets core demonstration disputes (such as PP-D-UNAUTH-3004, PP-D-INR-1006,
+    PP-D-INR-1007, PP-D-SNAD-2004, PP-D-SNAD-2005) back to DRAFT_PENDING_REVIEW
+    so merchants and hackathon evaluators always have fresh review/draft claims to test 1-Click Approve.
+    """
+    draft_ids = [
+        ("PP-D-UNAUTH-3004", 0.74, 80.00, "Disputing annual recurring SaaS subscription renewal.", "UNAUTHORIZED"),
+        ("PP-D-INR-1006", 0.68, 110.00, "Tracking shows package in transit for 10 days without movement.", "MERCHANDISE_OR_SERVICE_NOT_RECEIVED"),
+        ("PP-D-INR-1007", 0.72, 75.00, "Driver marked delivered but building concierge says nothing arrived.", "MERCHANDISE_OR_SERVICE_NOT_RECEIVED"),
+        ("PP-D-SNAD-2004", 0.65, 210.00, "Headphones microphone does not function properly on Windows.", "MERCHANDISE_OR_SERVICE_NOT_RECEIVED"),
+        ("PP-D-SNAD-2005", 0.62, 140.00, "Ordered ceramic bowl set, arrived with chip on edge.", "MERCHANDISE_OR_SERVICE_NOT_AS_DESCRIBED"),
+        ("PP-D-UNAUTH-3005", 0.76, 125.00, "Unrecognized checkout charge on company purchasing card.", "UNAUTHORIZED"),
+    ]
+
+    reset_count = 0
+    for pid, conf, amt, msg, reason in draft_ids:
+        disp = db.query(Dispute).filter(Dispute.paypal_dispute_id == pid).first()
+        if disp:
+            disp.agent_decision = "DRAFT_PENDING_REVIEW"
+            disp.status = "WAITING_FOR_SELLER_RESPONSE"
+            disp.confidence_score = conf
+            disp.evidence_submitted = False
+            disp.outcome = "PENDING"
+            disp.dispute_amount = amt
+            disp.buyer_message = msg
+            disp.reason = reason
+            reset_count += 1
+        else:
+            disp = Dispute(
+                paypal_dispute_id=pid,
+                paypal_order_id=f"ORD-2026-{reset_count + 9000}",
+                reason=reason,
+                status="WAITING_FOR_SELLER_RESPONSE",
+                dispute_amount=amt,
+                dispute_currency="USD",
+                buyer_email=f"buyer{reset_count + 3000}@example.com",
+                buyer_message=msg,
+                agent_decision="DRAFT_PENDING_REVIEW",
+                confidence_score=conf,
+                evidence_strength_score=conf,
+                agent_reasoning=f"Moderate confidence ({int(conf * 100)}%). Evidence assembled. Ready for merchant 1-click review and submission.",
+                evidence_submitted=False,
+                outcome="PENDING",
+            )
+            db.add(disp)
+            reset_count += 1
+
+    # Also promote any WAITING_FOR_SELLER_RESPONSE disputes to DRAFT_PENDING_REVIEW if they were PENDING
+    pending_disps = db.query(Dispute).filter(
+        Dispute.status == "WAITING_FOR_SELLER_RESPONSE",
+        Dispute.agent_decision == "PENDING"
+    ).all()
+    for d in pending_disps:
+        d.agent_decision = "DRAFT_PENDING_REVIEW"
+        if not d.confidence_score:
+            d.confidence_score = 0.70
+        reset_count += 1
+
+    db.commit()
+
+    try:
+        await broadcast_message({
+            "type": "dispute_resolved",
+            "message": "Demo dispute queue reset with fresh drafts for merchant review",
+        })
+    except Exception:
+        pass
+
+    return {
+        "status": "success",
+        "message": f"Successfully prepared {reset_count} dispute drafts awaiting merchant review",
+        "drafts_ready": reset_count,
+    }
+
 

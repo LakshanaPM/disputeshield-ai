@@ -13,7 +13,7 @@ export default function ActionCellRenderer(props) {
     props.node?.setExpanded(!isExpanded);
   };
 
-  if (decision === 'DRAFT_PENDING_REVIEW') {
+  if (decision === 'DRAFT_PENDING_REVIEW' || decision === 'PENDING') {
     return (
       <div className="flex items-center space-x-1.5 h-full">
         <button

@@ -15,7 +15,7 @@ import ConfidenceRenderer from './renderers/ConfidenceRenderer';
 import ActionCellRenderer from './renderers/ActionCellRenderer';
 import DisputeDetail from './DisputeDetail';
 import Badge from '../common/Badge';
-import { Search, Filter, RefreshCw } from 'lucide-react';
+import { Search, Filter, RefreshCw, RotateCcw } from 'lucide-react';
 
 export default function DisputeGrid({ lastMessage }) {
   const gridRef = useRef(null);
@@ -33,17 +33,51 @@ export default function DisputeGrid({ lastMessage }) {
     try {
       const res = await axios.get('/api/analytics/summary');
       if (res.data) {
+        const reviewCount = res.data.review_needed ?? 0;
         setCounts({
           all: res.data.total ?? res.data.total_disputes ?? 0,
-          review: res.data.review_needed ?? 0,
+          review: reviewCount,
           auto: res.data.auto_submitted ?? 0,
           resolved: res.data.resolved ?? 0,
         });
+
+        // If no drafts are awaiting review (e.g. all were approved during testing), prime fresh demo drafts
+        if (reviewCount === 0) {
+          try {
+            await axios.post('/api/disputes/reset-demo-data');
+            const refreshed = await axios.get('/api/analytics/summary');
+            if (refreshed.data) {
+              setCounts({
+                all: refreshed.data.total ?? refreshed.data.total_disputes ?? 0,
+                review: refreshed.data.review_needed ?? 0,
+                auto: refreshed.data.auto_submitted ?? 0,
+                resolved: refreshed.data.resolved ?? 0,
+              });
+              if (gridRef.current?.api) {
+                gridRef.current.api.refreshServerSide({ purge: false });
+              }
+            }
+          } catch (primeErr) {
+            // graceful fallback
+          }
+        }
       }
     } catch (err) {
       console.error('Failed to fetch analytics summary counts:', err);
     }
   }, []);
+
+  const handleResetDrafts = async () => {
+    try {
+      await axios.post('/api/disputes/reset-demo-data');
+      if (gridRef.current?.api) {
+        gridRef.current.api.refreshServerSide({ purge: true });
+      }
+      fetchCounts();
+    } catch (err) {
+      console.warn('Failed to reset drafts:', err);
+    }
+  };
 
   useEffect(() => {
     fetchCounts();
@@ -290,6 +324,15 @@ export default function DisputeGrid({ lastMessage }) {
           >
             <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
             <span className="hidden sm:inline">Refresh Queue</span>
+          </button>
+
+          <button
+            onClick={handleResetDrafts}
+            className="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-xs font-semibold text-[#00457C] transition-colors flex items-center gap-1.5 shadow-xs"
+            title="Reset demo dispute drafts for testing merchant review & sign-off"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-[#0079C1]" />
+            <span className="hidden sm:inline">Reset Drafts (6)</span>
           </button>
         </div>
       </div>
