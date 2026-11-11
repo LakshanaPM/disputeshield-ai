@@ -1,18 +1,18 @@
-# DisputeShield AI — Spoken Demo Video Script (Conversational & Natural)
+# DisputeShield AI — Spoken Demo Video Script & Post-Production Plan
 
 > **Format:** Spoken video walkthrough (Natural, enthusiastic, founder-style demo)  
-> **Duration:** ~2 minutes 45 seconds (Safe margin under the 3-minute hard limit)  
+> **Duration:** 2 minutes 45 seconds – 2 minutes 55 seconds (Hard limit: Must be under 3:00)  
 > **Screen:** `https://disputeshield-frontend-gt1j.onrender.com` (Fullscreen `F11`)  
-> **Tip:** Read naturally like you are talking to a colleague or hackathon judge. Don't rush! Pauses (`...`) are marked for natural breathing.
+> **Sponsor Alignment:** PayPal MCP, AG Grid Enterprise, Elasticsearch, LangChain
 
 ---
 
-## 🎙️ Spoken Script & Screen Actions
+## 🎬 Video Timeline & Narration
 
 ### [0:00 – 0:25] The Hook & The Problem
 **👉 What you do on screen:**
 - Start with the live dashboard already open in Chrome (`F11` fullscreen).
-- Gently move your mouse over the top cards and the table.
+- Move mouse gently across the top cards and AG Grid table.
 
 **🗣️ What you say (Warm, engaging, natural):**
 > "Hey everyone!
@@ -116,24 +116,79 @@
 
 ---
 
-### [2:35 – 2:55] Closing & Wrap Up
-**👉 What you do on screen:**
-- Close the modal (`✕`) so you are back on the clean, beautiful main dashboard.
-- Mouse rests near the logo. Hold the screen steady.
+### [2:35 – 2:50] Architecture Diagram Overlay Flash
+**👉 What you do on screen (Video Edit):**
+- Overlay the **DisputeShield System Architecture Diagram** over the screen (or Picture-in-Picture) for 15 seconds.
+- Graphic shows the flow:
+  `PayPal Webhook → FastAPI → LangChain Agent (@paypal/mcp) → Elasticsearch Vector RAG → AG Grid Enterprise UI`
 
-**🗣️ What you say (Warm, punchy closing):**
-> "Under the hood, DisputeShield combines **PayPal's APIs and Model Context Protocol**, **AG Grid Enterprise**, and **Vector RAG** into a production-ready solution deployed live on Render.
+**🗣️ What you say (Authoritative, tech-focused):**
+> "Under the hood, DisputeShield combines **PayPal's REST APIs and Model Context Protocol**, **AG Grid Enterprise**, **Elasticsearch Vector Search**, and **LangChain** into a production-ready solution deployed live on Render.
 >
 > No more missed deadlines. No more lost revenue.
 >
-> With **DisputeShield AI**, merchants can finally put their dispute defense on autopilot.
->
-> Thanks so much for watching!"
+> With **DisputeShield AI**, merchants can finally put their dispute defense on autopilot."
 
 ---
 
-## 💡 Quick Tips for a Flawless Recording
-1. **Talk to a person:** Imagine you are showing this to a friend on a Zoom call. Smile while speaking—it actually makes your voice sound warmer!
-2. **Don't rush the clicks:** After you click a button (like *Simulate Webhook* or *Approve*), pause for 1 second so the viewer can see the toast or banner appear before you start talking about it.
-3. **If you make a mistake:** Don't restart the whole video! Just pause for 3 seconds, take a breath, and re-read that one sentence. You can easily cut out the silence in any free editor (like CapCut, Clipchamp, or Premiere).
-4. **Timer Check:** Practice once with a phone stopwatch. Aiming for around **2 minutes 45 seconds** gives you plenty of safety under the 3-minute cutoff.
+### [2:50 – 2:55] Sponsor End-Card & Sign-off
+**👉 What you do on screen (Video Edit):**
+- Fullscreen End-Card appears for the final 5 seconds:
+  ```
+  ┌───────────────────────────────────────────────────────────┐
+  │                    DisputeShield AI                       │
+  │        Autonomous PayPal Dispute Defense Platform         │
+  │                                                           │
+  │  Built with:                                              │
+  │  • PayPal Model Context Protocol (@paypal/mcp)            │
+  │  • AG Grid Enterprise                                     │
+  │  • Elasticsearch 1536-dim Vector RAG                      │
+  │  • LangChain & FastAPI                                    │
+  │                                                           │
+  │  GitHub: github.com/LakshanaPM/disputeshield-ai           │
+  │  Demo: disputeshield-frontend-gt1j.onrender.com           │
+  └───────────────────────────────────────────────────────────┘
+  ```
+
+**🗣️ What you say:**
+> "Thanks so much for watching!"
+
+---
+
+## 🛠️ Post-Production & Editing Checklist (Execution Plan Day 24)
+
+Following **Day 24 of the DisputeShield Execution Plan**, apply these 5 quick editing steps before submitting:
+
+### 1. ✂️ Trim Dead Air
+- In your video editor (CapCut, Premiere, or Windows Clipchamp), cut out:
+  - Any pauses longer than 1.5 seconds.
+  - Awkward mouse searching or loading delays.
+  - Keep the tempo brisk and energetic. Ensure total runtime is between **2:45 and 2:55**.
+
+### 2. 💬 Add Captions / Subtitles (Critical for Muted Judges)
+- **Why:** 60%+ of hackathon evaluators watch demo videos on mute or low volume.
+- **How:**
+  - Auto-generate captions in CapCut/Clipchamp, OR
+  - Upload the video to YouTube and verify YouTube's automatic captions, OR upload an `.srt` file.
+  - Style: Clean white text with a subtle dark outline or box at the bottom center.
+
+### 3. 🖼️ Architecture Diagram Overlay (Flash at 2:35)
+- Insert a clean architecture graphic at **[2:35 – 2:45]** while discussing the tech stack.
+- Elements to display in the graphic:
+  1. `PayPal Webhook Ingest (FastAPI)`
+  2. `Model Context Protocol (@paypal/mcp Tools)`
+  3. `Elasticsearch Precedent Vectors (1536-dim RAG)`
+  4. `AG Grid Enterprise SSRM Data Grid`
+  5. `WebSocket Real-Time Broadcast`
+
+### 4. 🎨 Custom YouTube Thumbnail
+- **Dimensions:** 1280 x 720 (16:9), PNG or JPG under 2MB.
+- **Layout:**
+  - **Left 60%:** Screenshot of the AG Grid Command Center + Emerald "Auto-Dispatched" badge.
+  - **Right 40%:** DisputeShield Shield Logo + Bold text: **"AUTONOMOUS PAYPAL DEFENSE"** in high-contrast white & gold.
+  - **Top Corner:** "PayPal AI Hackathon 2026" badge.
+
+### 5. 🏷️ "Built With" End Text Card (Last 5 Seconds)
+- Insert the static title card at **[2:50 – 2:55]** displaying:
+  **"Built with: PayPal MCP, AG Grid, Elasticsearch, LangChain"**
+  along with your GitHub repository link: `github.com/LakshanaPM/disputeshield-ai`.
