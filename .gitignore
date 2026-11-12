@@ -62,6 +62,10 @@ yarn-error.log*
 *.log
 scratch/
 tmp/
+recordings/
+test_record/
+*.mp4
+*.webm
 
 # OS & IDE
 .DS_Store

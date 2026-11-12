@@ -26,7 +26,7 @@ Autonomous agentic PayPal dispute defense with AG Grid SSRM, Model Context Proto
 - **Live Demo URL:** `https://disputeshield-frontend-gt1j.onrender.com`
 - **GitHub Repository:** `https://github.com/LakshanaPM/disputeshield-ai` *(Public with MIT License)*
 - **API Health / Docs:** `https://disputeshield-api-1p7w.onrender.com/docs`
-- **Video Demo URL:** *(Paste your Public YouTube Video URL here)*
+- **Video Demo URL:** `https://youtu.be/YR1iVlWnZdc`
 
 ---
 
