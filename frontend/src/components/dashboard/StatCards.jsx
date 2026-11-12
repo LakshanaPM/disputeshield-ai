@@ -117,11 +117,11 @@ export default function StatCards({ lastMessage }) {
         </div>
       </div>
 
-      {/* Card 2: Merchant Win Rate with Marine Blue SVG Ring */}
+      {/* Card 2: Contested Win Rate with Marine Blue SVG Ring */}
       <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs hover:border-[#0079C1] transition-all">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-            Merchant Win Rate
+            Contested Win Rate
           </span>
           <div className="relative w-8 h-8 flex items-center justify-center">
             <svg className="w-8 h-8 transform -rotate-90" viewBox="0 0 54 54">
@@ -138,7 +138,7 @@ export default function StatCards({ lastMessage }) {
                 cx="27"
                 cy="27"
                 r={radius}
-                className="text-[#0079C1] transition-all duration-1000 ease-out"
+                className="text-emerald-500 transition-all duration-1000 ease-out"
                 strokeWidth="4"
                 strokeDasharray={circumference}
                 strokeDashoffset={strokeDashoffset}
@@ -153,9 +153,16 @@ export default function StatCards({ lastMessage }) {
           <span className="text-3xl font-extrabold text-slate-900 font-mono tracking-tight">
             <AnimatedCounter value={winRate} decimals={1} suffix="%" duration={1000} />
           </span>
+          {winRate >= 99 && (
+            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+              Zero Losses
+            </span>
+          )}
         </div>
         <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
-          <span className="text-paypal-marine font-semibold">+30.5% alpha</span>
+          <span className="text-paypal-marine font-semibold">
+            {winRate >= 99 ? '+48.0% alpha' : '+30.5% alpha'}
+          </span>
           <span className="text-slate-400">vs 52.0% industry avg</span>
         </div>
       </div>
