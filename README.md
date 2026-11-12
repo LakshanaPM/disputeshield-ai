@@ -1,7 +1,12 @@
 # 🛡️ DisputeShield AI
 
 > **Autonomous Agentic Dispute Defense for PayPal Merchants**  
-> Built for the PayPal AI Hackathon & AG Grid Bounty Prize.
+> Official Submission for the **PayPal AI Hackathon 2026** (Grand Prize Target, Best Use of PayPal + AI, AG Grid Enterprise Sponsor Bounty).
+
+[![Live Demo](https://img.shields.io/badge/Demo-Live_Web_App-0079C1?style=for-the-badge&logo=render)](https://disputeshield-frontend-gt1j.onrender.com)
+[![Video Demo](https://img.shields.io/badge/YouTube-Video_Walkthrough-FF0000?style=for-the-badge&logo=youtube)](https://youtu.be/YR1iVlWnZdc)
+[![API Docs](https://img.shields.io/badge/FastAPI-Swagger_Docs-009688?style=for-the-badge&logo=fastapi)](https://disputeshield-api-1p7w.onrender.com/docs)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 DisputeShield AI is a proactive, agentic defense platform designed to protect high-volume PayPal merchants against chargebacks, Item Not Received (INR), and Significantly Not As Described (SNAD) disputes. Powered by **Model Context Protocol (MCP)**, **LangChain agentic reasoning**, **Elasticsearch vector RAG**, and an **AG Grid Enterprise Server-Side Row Model (SSRM)** command center, DisputeShield automates counter-evidence assembly, calculates empirical confidence, and enforces strict risk guardrails.
 
@@ -79,7 +84,7 @@ Run the complete multi-service stack with a single command:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/disputeshield-ai.git
+git clone https://github.com/LakshanaPM/disputeshield-ai.git
 cd disputeshield-ai
 
 # Copy environment template
